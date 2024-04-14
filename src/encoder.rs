@@ -40,9 +40,8 @@ fn pixels_to_img(pixels: &Vec<[u8; 3]>, reslution: (u16, u16)) -> Result<RgbImag
         let pixel = image::Rgb(*pixel);
         let x = i % reslution.0 as usize;
         let y = i / reslution.1 as usize;
-        println!("{x}, {y}");
-        
-        image.put_pixel(x as u32, y as u32, image::Rgb([255, 255, 255]));//pixel);
+
+        image.put_pixel(x as u32, y as u32, pixel);
     }
 
     Ok(image)
@@ -52,9 +51,9 @@ fn pixels_to_img(pixels: &Vec<[u8; 3]>, reslution: (u16, u16)) -> Result<RgbImag
 //
 // }
 
-pub fn run(file: &str, resolution: (u16, u16)) {
+pub fn run(file: &str, output: &str, resolution: (u16, u16)) {
     let bits = file_to_bits(file);
     let bits = add_header(&bits, file);
     let pixels = bits_to_pixels(&bits);
-    pixels_to_img(&pixels, resolution).expect("Failed to render frame").save("base.png");
+    let _ = pixels_to_img(&pixels, resolution).expect("Failed to render frame").save(output);
 }
