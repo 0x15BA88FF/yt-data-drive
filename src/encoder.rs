@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use image::{ RgbImage };
+use spinners::{Spinner, Spinners};
 
 fn file_to_bits(filename: &str) -> Vec<u8> {
     let mut buffer: Vec<u8> = Vec::new();
@@ -39,7 +40,7 @@ fn pixels_to_img(pixels: &Vec<[u8; 3]>, reslution: (u16, u16)) -> Result<RgbImag
     for (i, pixel) in pixels.iter().enumerate() {
         let pixel = image::Rgb(*pixel);
         let x = i % reslution.0 as usize;
-        let y = i / reslution.1 as usize;
+        let y = i / reslution.0 as usize;
 
         image.put_pixel(x as u32, y as u32, pixel);
     }
@@ -51,9 +52,28 @@ fn pixels_to_img(pixels: &Vec<[u8; 3]>, reslution: (u16, u16)) -> Result<RgbImag
 //
 // }
 
-pub fn run(file: &str, output: &str, resolution: (u16, u16)) {
-    let bits = file_to_bits(file);
-    let bits = add_header(&bits, file);
+pub fn run(file: &str, output: &str, resolution: (u16, u16), no_video: bool, no_frames: bool) {
+    let mut sp = Spinner::new(Spinners::Dots9, "Encoding File...".into());
+
+    let bits = add_header(&file_to_bits(file), file);
     let pixels = bits_to_pixels(&bits);
-    let _ = pixels_to_img(&pixels, resolution).expect("Failed to render frame").save(output);
+    let estimated_frames = bits.len() / (3 * resolution.0 as usize * resolution.1 as usize) + 1;
+
+    if !no_frames {
+        for frame_num in 0..estimated_frames {
+            let frame_size: u128 = (resolution.0 * resolution.1) as u128;
+            let start = frame_num as u128 * frame_size;
+            let end = (start + frame_size).min(pixels.len() as u128);
+
+            let frame_pixels: Vec<[u8; 3]> = (&pixels[start as usize..end as usize]).to_vec();
+
+            let frame_output = format!("{}_{}.png", output, frame_num);
+            let image = pixels_to_img(&frame_pixels, resolution) .expect("Failed to render frame");
+            image.save(&frame_output).expect("Failed to save frame");
+        }
+    }
+
+    // if !no_video { unimplemented!() }
+
+    sp.stop_with_newline();
 }

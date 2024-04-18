@@ -1,22 +1,22 @@
 fn img_to_pixels() {
-
+    unimplemented!()
 }
 
 fn pixels_to_bits() {
-
+    unimplemented!()
 }
 
-fn split_segments(Vec<u8>) (&str, &Vec<u8>) {
-    let mut byts_buffer: Vec<u8> = Vec::new();
+fn split_segments() {
+    unimplemented!()
 }
 fn bits_to_file() {
-
+    unimplemented!()
 }
 
 fn clear_folder() {
-
+    unimplemented!()
 }
 
-pub fn main() {
-
+pub fn run(file: &str, output: &str, resolution: (u16, u16), no_frames: bool) {
+    unimplemented!()
 }
